@@ -61,18 +61,15 @@ int		get_next_line(int fd, char **line)
 	int			j;
 	static char	*save;
 
-	if (fd < 0 || (!save && !(save = ft_strnew(BUFF_SIZE))))
-		return (-1);
-	if (!(*line = (char *)malloc(sizeof(char) * BUFF_SIZE + 1)))
+	if (fd < 0 || (!(save = ft_strnew(BUFF_SIZE))) ||
+		(!(*line = (char *)malloc(sizeof(char) * BUFF_SIZE + 1))))
 		return (-1);
 	while ((j = read(fd, *line, BUFF_SIZE)) > 0)
 	{
 		if (!(ft_remalloc(&save)))
 			return (-1);
 		ft_strncat(save, *line, BUFF_SIZE);
-		if (ft_memchr(*line, '\n', BUFF_SIZE))
-			break ;
-		if (ft_strlen(*line) < ft_strlen(save))
+		if (ft_memchr(*line, '\n', BUFF_SIZE) || ft_strchr(save, '\0'))
 			break ;
 	}
 	if ((line_filler(j, &save, &(*line))) == 2)
