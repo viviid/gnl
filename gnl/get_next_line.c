@@ -6,7 +6,7 @@
 /*   By: pcorbeau <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/03/18 10:51:50 by pcorbeau          #+#    #+#             */
-/*   Updated: 2016/03/18 10:53:31 by pcorbeau         ###   ########.fr       */
+/*   Updated: 2016/03/21 17:09:51 by pcorbeau         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,17 @@ int		ft_remalloc(char **save)
 	if (!(*save = ft_strnew(ft_strlen(tmp) + BUFF_SIZE)))
 		return (0);
 	ft_strcpy(*save, tmp);
+	free(tmp);
 	return (1);
+}
+int		filler(int i, int y, char **save)
+{
+	while ((*save)[i])
+		(*save)[y] = (*save)[i];
+		i++;
+		y++;
+	(*save)[y] = '\0';
+	return (2);
 }
 
 int		line_filler(int j, char **save, char **line)
@@ -35,22 +45,20 @@ int		line_filler(int j, char **save, char **line)
 	i = 0;
 	if (j != 0 || ft_strlen((*save)) != 0)
 	{
-		while ((*save)[i] != '\n')
+		while (ft_isprint((*save)[i]) == 1)
 		{
 			(*line)[i] = (*save)[i];
 			i++;
+			if ((*save)[i] =='\n' || (*save)[i] == '\0')
+				break ;
 		}
-		(*line)[i++] = '\0';
+		if ((*save)[i] == '\n')
+			(*line)[i++] = '\0';
 		if ((*save)[0] == '\n')
-		{
-			while ((*save)[i])
-				(*save)[y++] = (*save)[i++];
-			(*save)[y] = '\0';
-			return (2);
-		}
+			return (filler(i, y, save));
 		while ((*save)[i])
 			(*save)[y++] = (*save)[i++];
-		(*save)[y] = '\0';
+		(*save)[y++] = '\0';
 	}
 	return (1);
 }
@@ -60,18 +68,19 @@ int		get_next_line(int fd, char **line)
 	int			j;
 	static char	*save;
 
-	if (fd < 0 || (!save && !(save = ft_strnew(BUFF_SIZE))))
-		return (-1);
-	if (!(*line = (char *)malloc(sizeof(char) * BUFF_SIZE)))
+	if (fd < 0 || (!save && !(save = ft_strnew(BUFF_SIZE))) ||
+				(!(*line = ft_strnew(BUFF_SIZE + 1))))
 		return (-1);
 	while ((j = read(fd, *line, BUFF_SIZE)) > 0)
 	{
 		if (!(ft_remalloc(&save)))
 			return (-1);
 		ft_strncat(save, *line, BUFF_SIZE);
-		if (ft_memchr(*line, '\n', BUFF_SIZE))
-			break ;
+		if (ft_strchr((*line), '\n'))
+			break;
 	}
+	if (j == -1)
+		return (-1);
 	if ((line_filler(j, &save, &(*line))) == 2)
 		return (1);
 	if (ft_memcmp((*line), save, ft_strlen(*line)) == 0)
