@@ -5,89 +5,57 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: pcorbeau <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2016/03/18 10:51:50 by pcorbeau          #+#    #+#             */
-/*   Updated: 2016/03/21 17:09:51 by pcorbeau         ###   ########.fr       */
+/*   Created: 2016/03/23 17:13:50 by pcorbeau          #+#    #+#             */
+/*   Updated: 2016/03/23 17:19:57 by pcorbeau         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-int		ft_remalloc(char **save)
+static int	get_line(int const fd, char *buffer, char *save[fd])
 {
+	int		ret;
+	char	*test;
 	char	*tmp;
 
-	if (!(tmp = ft_strnew(ft_strlen(*save))))
-		return (0);
-	ft_strcpy(tmp, *save);
-	*save = NULL;
-	if (!(*save = ft_strnew(ft_strlen(tmp) + BUFF_SIZE)))
-		return (0);
-	ft_strcpy(*save, tmp);
-	free(tmp);
-	return (1);
-}
-int		filler(int i, int y, char **save)
-{
-	while ((*save)[i])
-		(*save)[y] = (*save)[i];
-		i++;
-		y++;
-	(*save)[y] = '\0';
-	return (2);
-}
-
-int		line_filler(int j, char **save, char **line)
-{
-	int		i;
-	int		y;
-
-	y = 0;
-	i = 0;
-	if (j != 0 || ft_strlen((*save)) != 0)
+	while ((test = ft_strchr(buffer, '\n')) == NULL &&
+			(ret = read(fd, buffer, BUFF_SIZE)) > 0)
 	{
-		while (ft_isprint((*save)[i]) == 1)
-		{
-			(*line)[i] = (*save)[i];
-			i++;
-			if ((*save)[i] =='\n' || (*save)[i] == '\0')
-				break ;
-		}
-		if ((*save)[i] == '\n')
-			(*line)[i++] = '\0';
-		if ((*save)[0] == '\n')
-			return (filler(i, y, save));
-		while ((*save)[i])
-			(*save)[y++] = (*save)[i++];
-		(*save)[y++] = '\0';
+		buffer[ret] = '\0';
+		tmp = save[fd];
+		save[fd] = ft_strjoin(tmp, buffer);
+		ft_strdel(&tmp);
 	}
+	ft_strdel(&buffer);
+	if (ret == -1)
+		return (-1);
 	return (1);
 }
 
-int		get_next_line(int fd, char **line)
+int			get_next_line(int const fd, char **line)
 {
-	int			j;
-	static char	*save;
+	static char	*save[MAX_FD];
+	char		*buffer;
+	int			ret;
+	char		*str;
+	char		*tmp;
 
-	if (fd < 0 || (!save && !(save = ft_strnew(BUFF_SIZE))) ||
-				(!(*line = ft_strnew(BUFF_SIZE + 1))))
+	buffer = ft_strnew(BUFF_SIZE);
+	if (fd < 0 || line == NULL || buffer == NULL || BUFF_SIZE < 1)
 		return (-1);
-	while ((j = read(fd, *line, BUFF_SIZE)) > 0)
+	if (save[fd] == NULL)
+		save[fd] = ft_strnew(1);
+	if ((ret = get_line(fd, buffer, save)) == -1)
+		return (-1);
+	if ((str = ft_strchr(save[fd], '\n')) != NULL)
 	{
-		if (!(ft_remalloc(&save)))
-			return (-1);
-		ft_strncat(save, *line, BUFF_SIZE);
-		if (ft_strchr((*line), '\n'))
-			break;
-	}
-	if (j == -1)
-		return (-1);
-	if ((line_filler(j, &save, &(*line))) == 2)
+		*line = ft_strsub(save[fd], 0, str - save[fd]);
+		tmp = save[fd];
+		save[fd] = ft_strdup(str + 1);
+		ft_strdel(&tmp);
 		return (1);
-	if (ft_memcmp((*line), save, ft_strlen(*line)) == 0)
-	{
-		if (!(*line = ft_strdup("")))
-			return (1);
-		return (0);
 	}
-	return (1);
+	*line = ft_strdup(save[fd]);
+	save[fd] = NULL;
+	return (ft_strlen(*line) > 0 ? 1 : 0);
 }

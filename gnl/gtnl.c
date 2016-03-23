@@ -1,27 +1,23 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.h                                    :+:      :+:    :+:   */
+/*   get_next_line.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: pcorbeau <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2016/03/18 10:52:39 by pcorbeau          #+#    #+#             */
-/*   Updated: 2016/03/23 17:18:50 by pcorbeau         ###   ########.fr       */
+/*   Created: 2016/03/23 16:34:53 by pcorbeau          #+#    #+#             */
+/*   Updated: 2016/03/23 16:39:36 by pcorbeau         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef GET_NEXT_LINE_H
-# define GET_NEXT_LINE_H
-# define BUFF_SIZE 1
-# define MAX_FD 2147483647
+#include "get_next_line.c"
 
-# include "libft/includes/libft.h"
-# include <fcntl.h>
-# include <sys/stat.h>
-# include <sys/types.h>
-# include <unistd.h>
-# include <stdlib.h>
+int		fill_line(int j, char *save, char **line)
+{
+	
+}
 
-int		get_next_line(int const fd, char **line);
-
-#endif
+int		get_next_line(int const fd, char **line)
+{
+	
+}
